@@ -114,7 +114,7 @@ def on_mesa_click(numero_mesa):
 
 # Crear la interfaz gráfica
 root = tk.Tk()
-root.title("Administrador de Mesas"
+root.title("Administrador de Mesas")
 
 botones = []
 for mesa in restaurante.mesas:
