@@ -1,7 +1,6 @@
-
 from connection import conectar_bd, cerrar_conexion
 
-conection, cursor = conectar_bd()
+connection, cursor = conectar_bd()
 # Obtener la lista de tablas
 cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema='public'")
 
@@ -10,4 +9,4 @@ print("Tablas en la base de datos:")
 for table in cursor.fetchall():
     print(table[0])
 
-cerrar_conexion(conectar_bd, cursor)
+cerrar_conexion(connection, cursor)
