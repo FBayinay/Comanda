@@ -1,26 +1,13 @@
-import psycopg2
 
-# Conexión a la base de datos
-conn = psycopg2.connect(
-    host="192.168.18.37",
-    database="comanda",
-    user="fbayinay",
-    password="159753"
-    )
+from connection import conectar_bd, cerrar_conexion
 
-
-# Crear un cursor
-cur = conn.cursor()
-
+conection, cursor = conectar_bd()
 # Obtener la lista de tablas
-cur.execute("SELECT table_name FROM information_schema.tables WHERE table_schema='public'")
+cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema='public'")
 
 # Recorrer las tablas y mostrarlas
 print("Tablas en la base de datos:")
-for table in cur.fetchall():
+for table in cursor.fetchall():
     print(table[0])
 
-# Cerrar cursor y conexión
-cur.close()
-conn.close()
-
+cerrar_conexion(conectar_bd, cursor)
