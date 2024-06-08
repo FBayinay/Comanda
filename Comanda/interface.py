@@ -2,11 +2,12 @@ import psycopg2
 
 # Conexión a la base de datos
 conn = psycopg2.connect(
-    dbname="normalizacion",
-    user="RodriJul",
-    password="1234",
-    host="localhost"  
-)
+    host="192.168.18.37",
+    database="comanda",
+    user="fbayinay",
+    password="159753"
+    )
+
 
 # Crear un cursor
 cur = conn.cursor()
