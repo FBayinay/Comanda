@@ -25,11 +25,10 @@ def ensure_tables_exists():
 	    Nombre VARCHAR(50) NOT NULL,
 	    Apellido VARCHAR(50) NOT NULL,
 	    Email VARCHAR(100) NOT NULL UNIQUE,
-	    RolID INT REFERENCES roles(id_rol),
+	    Rol_ID INT REFERENCES roles(id_rol),
+        id_accion INT REFERENCES acciones(id_accion) NOT NULL,
 	    id_restaurante INT REFERENCES restaurantes(id_restaurante)
     ); 
-
-
     --Tabla Almacenes
     CREATE TABLE IF NOT EXISTS almacenes(
 	    id_almacenes SERIAL PRIMARY KEY,
