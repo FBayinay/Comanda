@@ -29,12 +29,17 @@ class DatabaseViewer(QMainWindow):
         for table in self.cursor.fetchall():
             self.tablas_listbox.addItem(table[0])
 
-        # Frame para el contenido de la tabla
-        frame_contenido = QWidget()
-        contenido_layout = QVBoxLayout(frame_contenido)
+        # Frame para la contenido de la tabla
+        self.frame_contenido = QWidget()  # Hacemos frame_contenido un atributo de la instancia
+        self.contenido_layout = QVBoxLayout(self.frame_contenido)
+
+        # Añadir título para la sección de contenido
+        self.contenido_title = QLabel("Datos de la tabla seleccionada:")
+        self.contenido_layout.addWidget(self.contenido_title)
+
         self.contenido_tree = QTreeWidget()
-        contenido_layout.addWidget(self.contenido_tree)
-        main_layout.addWidget(frame_contenido)
+        self.contenido_layout.addWidget(self.contenido_tree)
+        main_layout.addWidget(self.frame_contenido)
 
         # Set main layout
         container = QWidget()
@@ -72,9 +77,16 @@ class DatabaseViewer(QMainWindow):
         cerrar_conexion(self.connection, self.cursor)
         event.accept()
 
+    def limpiar_tabla(self):
+        # Limpiar la tabla de contenido y establecer el título predeterminado
+        self.contenido_tree.clear()
+        self.contenido_tree.setColumnCount(0)
+        self.contenido_title.setText("Datos de la tabla seleccionada:")
+
 def main():
     app = QApplication(sys.argv)
     viewer = DatabaseViewer()
+    viewer.limpiar_tabla()  # Limpia la tabla al inicio
     viewer.show()
     sys.exit(app.exec())
 
