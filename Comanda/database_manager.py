@@ -14,5 +14,9 @@ class DatabaseManager:
         rows = self.cursor.fetchall()
         return column_names, rows
 
+    def get_column_names(self, table_name):
+        self.cursor.execute(f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}'")
+        return [row[0] for row in self.cursor.fetchall()]
+
     def close_connection(self):
         cerrar_conexion(self.connection, self.cursor)
