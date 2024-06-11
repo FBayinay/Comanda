@@ -2,6 +2,7 @@ import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QListWidget, QTreeWidget, QTreeWidgetItem, QPushButton, QMessageBox, QDialog
 from PySide6 import QtCore  # Importa QtCore para usar AlignTop
 from data_entry_ui import DataEntryDialog
+from delete_entry_ui import DeleteEntryDialog  # Importa el diálogo de eliminación
 from database_manager import DatabaseManager
 
 class TableListWidget(QListWidget):
@@ -12,7 +13,7 @@ class TableListWidget(QListWidget):
 class DatabaseViewer(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Visor de Tablas de la Base de Datos")
+        self.setWindowTitle("Base de Datos de la Comanda")
         self.setGeometry(100, 100, 800, 600)
 
         self.manager = DatabaseManager()
@@ -72,6 +73,7 @@ class DatabaseViewer(QMainWindow):
             table_name = item.text()
             self.selected_table_name = table_name  # Guarda el nombre de la tabla seleccionada
             column_names, rows = self.manager.get_table_data(table_name)
+            self.primary_key = column_names[0]  # Asume que la primera columna es la clave primaria
             self.display_table_data(column_names, rows)
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))
@@ -104,8 +106,17 @@ class DatabaseViewer(QMainWindow):
             QMessageBox.critical(self, "Error", str(e))
 
     def subtract_row(self):
-        # Lógica para eliminar una fila
-        pass
+        try:
+            # Abre la ventana de eliminación de datos pasando el nombre de la tabla seleccionada
+            dialog = DeleteEntryDialog(self.selected_table_name, self.primary_key, self)
+            if dialog.exec() == QDialog.Accepted:
+                print("Fila eliminada correctamente.")
+                # Refrescar la tabla después de eliminar la fila
+                self.mostrar_tabla(self.tablas_listbox.currentItem())
+            else:
+                print("Eliminación de fila cancelada.")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e))
 
     def closeEvent(self, event):
         self.manager.close_connection()
