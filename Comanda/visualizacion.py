@@ -1,5 +1,7 @@
 import sys
-from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QListWidget, QTreeWidget, QTreeWidgetItem, QMessageBox
+from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QListWidget, QTreeWidget, QTreeWidgetItem, QPushButton, QMessageBox, QDialog
+from PySide6 import QtCore  # Importa QtCore para usar AlignTop
+from data_entry_ui import DataEntryDialog
 from database_manager import DatabaseManager
 
 class TableListWidget(QListWidget):
@@ -26,11 +28,31 @@ class DatabaseViewer(QMainWindow):
         main_layout.addWidget(frame_tablas)
 
         self.frame_contenido = QWidget()
-        self.contenido_layout = QVBoxLayout(self.frame_contenido)
+        contenido_layout = QVBoxLayout(self.frame_contenido)
+        contenido_layout.setAlignment(QtCore.Qt.AlignTop)  # Alineación arriba
         self.contenido_title = QLabel("Datos de la tabla seleccionada:")
-        self.contenido_layout.addWidget(self.contenido_title)
+        contenido_layout.addWidget(self.contenido_title)
         self.contenido_tree = QTreeWidget()
-        self.contenido_layout.addWidget(self.contenido_tree)
+        contenido_layout.addWidget(self.contenido_tree)
+
+        # Layout para los botones dentro del área de datos
+        buttons_layout = QHBoxLayout()
+
+        # Agrega un espacio elástico para empujar los botones a la derecha
+        buttons_layout.addStretch()
+
+        self.add_button = QPushButton("+")
+        self.add_button.setFixedSize(30, 30)  # Establece el tamaño del botón "+"
+        self.add_button.clicked.connect(self.add_row)
+        buttons_layout.addWidget(self.add_button)
+
+        self.subtract_button = QPushButton("-")
+        self.subtract_button.setFixedSize(30, 30)  # Establece el tamaño del botón "-"
+        self.subtract_button.clicked.connect(self.subtract_row)
+        buttons_layout.addWidget(self.subtract_button)
+
+        contenido_layout.addLayout(buttons_layout)  # Agregar botones al layout del área de datos
+
         main_layout.addWidget(self.frame_contenido)
 
         container = QWidget()
@@ -41,7 +63,6 @@ class DatabaseViewer(QMainWindow):
         self.populate_table_list()
 
     def populate_table_list(self):
-        self.limpiar_tabla()  # Limpiar la tabla al repoblar la lista
         table_names = self.manager.get_table_names()
         for table_name in table_names:
             self.tablas_listbox.addItem(table_name)
@@ -49,6 +70,7 @@ class DatabaseViewer(QMainWindow):
     def mostrar_tabla(self, item):
         try:
             table_name = item.text()
+            self.selected_table_name = table_name  # Guarda el nombre de la tabla seleccionada
             column_names, rows = self.manager.get_table_data(table_name)
             self.display_table_data(column_names, rows)
         except Exception as e:
@@ -65,6 +87,25 @@ class DatabaseViewer(QMainWindow):
         self.contenido_tree.clear()
         self.contenido_tree.setColumnCount(0)
         self.contenido_title.setText("Datos de la tabla seleccionada:")
+        
+    def add_row(self):
+        try:
+            # Obtén los nombres de las columnas de la tabla seleccionada
+            column_names = self.manager.get_column_names(self.selected_table_name)
+            # Abre la ventana de ingreso de datos pasando el nombre de la tabla seleccionada y las columnas
+            dialog = DataEntryDialog(self.selected_table_name, column_names, self)
+            if dialog.exec() == QDialog.Accepted:
+                print("Datos guardados correctamente.")
+                # Refrescar la tabla después de guardar los datos
+                self.mostrar_tabla(self.tablas_listbox.currentItem())
+            else:
+                print("Ingreso de datos cancelado.")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e))
+
+    def subtract_row(self):
+        # Lógica para eliminar una fila
+        pass
 
     def closeEvent(self, event):
         self.manager.close_connection()
