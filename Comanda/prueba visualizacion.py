@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-from connection import conectar_bd, cerrar_conexion
+from comanda.connection.connection import conectar_bd, cerrar_conexion
 
 # Función para mostrar el contenido de una tabla seleccionada
 def mostrar_tabla():

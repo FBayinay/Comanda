@@ -1,6 +1,6 @@
 import sys
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox
-from connection import conectar_bd, cerrar_conexion
+from comanda.connection.connection import conectar_bd, cerrar_conexion
 import psycopg2
 
 class DeleteEntryDialog(QDialog):

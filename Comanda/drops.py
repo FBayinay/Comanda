@@ -1,4 +1,4 @@
-from connection import conectar_bd,cerrar_conexion
+from comanda.connection.connection import conectar_bd,cerrar_conexion
 from psycopg2 import errors
 # Conectar a la base de datos
 connection, cursor = conectar_bd()

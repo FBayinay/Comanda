@@ -1,9 +1,11 @@
+# visualization.py
+
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QListWidget, QTreeWidget, QTreeWidgetItem, QPushButton, QMessageBox, QDialog
-from PySide6 import QtCore  # Importa QtCore para usar AlignTop
-from data_entry_ui import DataEntryDialog
-from delete_entry_ui import DeleteEntryDialog  # Importa el diálogo de eliminación
-from database_manager import DatabaseManager
+from PySide6 import QtCore
+from comanda.connection.database_manager import DatabaseManager
+from comanda.database.data_entry_ui import DataEntryDialog
+from comanda.database.delete_entry_ui import DeleteEntryDialog
 
 class TableListWidget(QListWidget):
     def __init__(self, parent=None):
@@ -65,6 +67,8 @@ class DatabaseViewer(QMainWindow):
 
     def populate_table_list(self):
         table_names = self.manager.get_table_names()
+        self.tablas_listbox.clear()  # Limpiar la lista antes de agregar nombres de tablas
+
         for table_name in table_names:
             self.tablas_listbox.addItem(table_name)
 
@@ -88,39 +92,17 @@ class DatabaseViewer(QMainWindow):
     def limpiar_tabla(self):
         self.contenido_tree.clear()
         self.contenido_tree.setColumnCount(0)
-        self.contenido_title.setText("Datos de la tabla seleccionada:")
-        
+        self.contenido_tree.setHeaderLabels([])
+
     def add_row(self):
-        try:
-            # Obtén los nombres de las columnas de la tabla seleccionada
-            column_names = self.manager.get_column_names(self.selected_table_name)
-            # Abre la ventana de ingreso de datos pasando el nombre de la tabla seleccionada y las columnas
-            dialog = DataEntryDialog(self.selected_table_name, column_names, self)
-            if dialog.exec() == QDialog.Accepted:
-                print("Datos guardados correctamente.")
-                # Refrescar la tabla después de guardar los datos
-                self.mostrar_tabla(self.tablas_listbox.currentItem())
-            else:
-                print("Ingreso de datos cancelado.")
-        except Exception as e:
-            QMessageBox.critical(self, "Error", str(e))
+        dialog = DataEntryDialog(self.selected_table_name)
+        if dialog.exec() == QDialog.Accepted:
+            self.populate_table_list()  # Actualiza la lista solo si se acepta la inserción de datos
 
     def subtract_row(self):
-        try:
-            # Abre la ventana de eliminación de datos pasando el nombre de la tabla seleccionada
-            dialog = DeleteEntryDialog(self.selected_table_name, self.primary_key, self)
-            if dialog.exec() == QDialog.Accepted:
-                print("Fila eliminada correctamente.")
-                # Refrescar la tabla después de eliminar la fila
-                self.mostrar_tabla(self.tablas_listbox.currentItem())
-            else:
-                print("Eliminación de fila cancelada.")
-        except Exception as e:
-            QMessageBox.critical(self, "Error", str(e))
-
-    def closeEvent(self, event):
-        self.manager.close_connection()
-        event.accept()
+        dialog = DeleteEntryDialog(self.selected_table_name, self.primary_key)
+        dialog.exec()
+        self.populate_table_list()  # Actualiza la lista al eliminar una entrada
 
 def main():
     app = QApplication(sys.argv)
@@ -128,5 +110,5 @@ def main():
     viewer.show()
     sys.exit(app.exec())
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

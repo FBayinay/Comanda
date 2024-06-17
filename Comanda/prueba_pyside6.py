@@ -1,6 +1,6 @@
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QLabel, QListWidget, QTreeWidget, QTreeWidgetItem, QMessageBox
-from connection import conectar_bd, cerrar_conexion
+from comanda.connection.connection import conectar_bd, cerrar_conexion
 
 class DatabaseViewer(QMainWindow):
     def __init__(self):
