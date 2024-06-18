@@ -8,36 +8,41 @@ class DataEntryDialog(QDialog):
         super().__init__()
         self.setWindowTitle("Ingresar Datos")
         self.table_name = table_name
-        self.column_names = DatabaseManager().get_column_names(self.table_name)  # Asigna column_names a self.column_names
 
         layout = QVBoxLayout()
         self.inputs = []
 
-        for column_name in self.column_names[1:]:  # Excluye la primera columna (id)
+        manager = DatabaseManager()
+        column_names = manager.get_column_names(self.table_name)
+
+        for column_name in column_names[1:]:  # Excluir la primera columna (id)
             label = QLabel(column_name)
             layout.addWidget(label)
             line_edit = QLineEdit()
             layout.addWidget(line_edit)
-            self.inputs.append(line_edit)
+            self.inputs.append((column_name, line_edit))
 
         self.submit_button = QPushButton("Guardar")
         self.submit_button.clicked.connect(self.submit_data)
         layout.addWidget(self.submit_button)
 
         self.setLayout(layout)
+        manager.close_connection()
 
     def submit_data(self):
-        data = {column_name: input.text() for column_name, input in zip(self.column_names[1:], self.inputs)}
+        manager = DatabaseManager()
+        data = {col_name: input.text() for col_name, input in self.inputs}
         if all(data.values()):
             try:
-                if self.table_name == 'login':  # Si estamos ingresando datos en la tabla 'login'
-                    # Aplicar hash a la contraseña
-                    data['password_hash'] = hash_password(data['password_hash'])  # Ajusta según tu estructura de datos
+                if self.table_name == 'login':
+                    data['password_hash'] = hash_password(data['password_hash'])
 
-                DatabaseManager().insert_data(self.table_name, data)  # Inserta los datos usando DatabaseManager
+                manager.insert_data(self.table_name, data)
                 QMessageBox.information(self, "Éxito", "Datos guardados correctamente.")
                 self.accept()
             except Exception as e:
                 QMessageBox.critical(self, "Error", f"No se pudo guardar los datos: {str(e)}")
+            finally:
+                manager.close_connection()
         else:
             QMessageBox.warning(self, "Advertencia", "Todos los campos deben ser completados.")
