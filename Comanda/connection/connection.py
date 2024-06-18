@@ -2,7 +2,7 @@ import psycopg2
 
 def conectar_bd():
     connection = psycopg2.connect(
-        host="172.19.1.100",
+        host="10.147.17.37",
         database="comanda",
         user="fbayinay",
         password="159753"
