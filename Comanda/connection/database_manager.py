@@ -29,7 +29,12 @@ class DatabaseManager:
         return column_names, rows
 
     def get_column_names(self, table_name):
-        self.cursor.execute(f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}'")
+        self.cursor.execute(f"""
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = '{table_name}' 
+            ORDER BY ordinal_position
+        """)
         return [row[0] for row in self.cursor.fetchall()]
 
     def close_connection(self):
