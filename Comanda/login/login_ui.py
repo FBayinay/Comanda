@@ -34,6 +34,10 @@ class LoginWindow(QMainWindow):
         container.setLayout(main_layout)
         self.setCentralWidget(container)
 
+        # Conectar el evento ReturnPressed para los campos de texto
+        self.username_input.returnPressed.connect(self.login)
+        self.password_input.returnPressed.connect(self.login)
+
     def login(self):
         username = self.username_input.text().strip()
         password = self.password_input.text().strip()
@@ -42,13 +46,16 @@ class LoginWindow(QMainWindow):
             QMessageBox.warning(self, "Campos Vacíos", "Por favor ingrese usuario y contraseña.")
             return
 
-        user_data = self.manager.authenticate_user(username, password)
+        try:
+            user_data = self.manager.authenticate_user(username, password)
+        except Exception as e:
+            self.status_label.setText(f"Error al autenticar: {e}")
+            return
 
         if user_data:
             user_id, nombre, apellido, rol_id = user_data
             if RoleAuthenticator.check_role(user_data, 1):  # Verifica si el usuario es un Propietario
-                self.status_label.setText(f"Inicio de sesión exitoso como {nombre} {apellido}")
-                # Aquí puedes continuar con la lógica de tu aplicación después del inicio de sesión exitoso
+                self.status_label.setText("Inicio de sesión exitoso.")
                 self.open_database_viewer()
             else:
                 self.status_label.setText("Acceso denegado. No tienes los permisos necesarios.")
