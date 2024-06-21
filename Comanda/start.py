@@ -1,4 +1,3 @@
-# run_comanda.py
 import subprocess
 import sys
 
