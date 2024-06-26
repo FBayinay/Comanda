@@ -1,4 +1,4 @@
-# login_ui.py
+# comanda/login/login_ui.py
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLineEdit, QPushButton, QLabel, QMessageBox
 from comanda.login.login_manager import LoginManager

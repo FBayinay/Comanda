@@ -1,3 +1,4 @@
+# comanda/database/data_entry_ui.py
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox
 from .data_entry_logic import DataEntryLogic
 from comanda.login.password_utils import hash_password  # Asegúrate de ajustar la ruta según la estructura de tus archivos

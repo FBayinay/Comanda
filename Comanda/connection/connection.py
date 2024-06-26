@@ -1,3 +1,4 @@
+# comanda/connection/connection.py
 import psycopg2
 
 def conectar_bd():

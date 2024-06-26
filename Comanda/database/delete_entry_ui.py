@@ -1,3 +1,4 @@
+# comanda/database/delete_entry_ui.py
 import sys
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox
 from comanda.connection.connection import conectar_bd, cerrar_conexion

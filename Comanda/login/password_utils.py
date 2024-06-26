@@ -1,4 +1,4 @@
-# password_utils.py
+# comanda/login/password_utils.py
 import bcrypt
 
 def hash_password(password):

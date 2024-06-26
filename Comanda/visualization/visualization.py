@@ -1,4 +1,4 @@
-# visualization.py
+# comanda/visualization/visualization.py
 
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QListWidget, QTreeWidget, QTreeWidgetItem, QPushButton, QMessageBox, QDialog

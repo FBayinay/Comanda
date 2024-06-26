@@ -1,4 +1,4 @@
-# database_manager.py
+# comanda/connection/database_manager.py
 import psycopg2
 from comanda.connection.connection import conectar_bd, cerrar_conexion
 

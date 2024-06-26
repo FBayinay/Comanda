@@ -1,4 +1,4 @@
-# login_manager.py
+# comanda/login/login_manager.py
 import psycopg2
 from comanda.connection.connection import conectar_bd, cerrar_conexion
 from comanda.login.password_utils import hash_password, check_password

@@ -1,4 +1,4 @@
-# role_authenticator.py
+# comanda/login/role_authenticator.py
 
 class RoleAuthenticator:
     @staticmethod

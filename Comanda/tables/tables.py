@@ -1,3 +1,4 @@
+# comanda/tables/tables.py
 from comanda.connection.connection import conectar_bd,cerrar_conexion
 # Conectar a la base de datos
 connection, cursor = conectar_bd()
