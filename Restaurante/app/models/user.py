@@ -15,3 +15,5 @@ class User(db.Model):
         return (f'<User id={self.id_usuario}, nombre={self.nombre}, apellido={self.apellido}, '
                 f'dni={self.dni}, email={self.email}, calle={self.calle}, numero={self.numero}, '
                 f'rol_id={self.rol_id}, id_accion={self.id_accion}>')
+
+
