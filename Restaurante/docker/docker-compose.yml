@@ -1,0 +1,66 @@
+version: "3.8"
+
+services:
+  # Base de datos PostgreSQL de desarrollo
+  postgres_dev:
+    image: postgres
+    container_name: postgres_dev
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: fbayinay
+      POSTGRES_PASSWORD: 159753
+      POSTGRES_DB: comanda_dev
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+
+  # Base de datos PostgreSQL de producción
+  postgres_prod:
+    image: postgres
+    container_name: postgres_prod
+    restart: always
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: rodrijul
+      POSTGRES_PASSWORD: 159753
+      POSTGRES_DB: comanda_prod
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+
+  # Herramienta pgAdmin para gestionar las bases de datos
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: comanda@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: Comanda159753
+    ports:
+      - "8089:80"
+    depends_on:
+      - postgres_dev
+      - postgres_prod
+
+  # Aplicación Flask
+  flask:
+    build: .
+    container_name: flask_app
+    command: flask run --host=0.0.0.0
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres_dev
+      - postgres_prod
+    environment:
+          - FLASK_CONTEXT=${FLASK_CONTEXT}
+          - SQLALCHEMY_TRACK_MODIFICATIONS=${SQLALCHEMY_TRACK_MODIFICATIONS}  
+          - SQLALCHEMY_RECORD_QUERIES=${SQLALCHEMY_RECORD_QUERIES}
+          - PROD_DATABASE_URI=${PROD_DATABASE_URI}
+    volumes:
+      - .:/app
+
+volumes:
+  postgres_dev_data:
+  postgres_prod_data:
