@@ -45,7 +45,7 @@ services:
 
   # Aplicación Flask
   flask:
-    build: .
+    build: ..
     container_name: flask_app
     command: flask run --host=0.0.0.0
     ports:
@@ -53,11 +53,8 @@ services:
     depends_on:
       - postgres_dev
       - postgres_prod
-    environment:
-          - FLASK_CONTEXT=${FLASK_CONTEXT}
-          - SQLALCHEMY_TRACK_MODIFICATIONS=${SQLALCHEMY_TRACK_MODIFICATIONS}  
-          - SQLALCHEMY_RECORD_QUERIES=${SQLALCHEMY_RECORD_QUERIES}
-          - PROD_DATABASE_URI=${PROD_DATABASE_URI}
+    env_file:
+      - .env  # Especifica la ruta del archivo .env
     volumes:
       - .:/app
 

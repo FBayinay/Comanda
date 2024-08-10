@@ -4,7 +4,7 @@ from pathlib import Path
 import os
 
 basedir = os.path.abspath(Path(__file__).parents[2])
-load_dotenv(os.path.join(basedir, '.env'))
+load_dotenv(os.path.join(basedir, 'docker/.env'))
 
 class Config(object):
     TESTING = False

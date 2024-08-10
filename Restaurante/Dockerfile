@@ -1,7 +1,7 @@
 FROM python:3.12.5-slim
 
 ENV GECKODRIVER_VER=v0.31.0
-ENV FLASK_ENV=production
+ENV FLASK_ENV=development
 ENV PYTHONUNBUFFERED=1
 ENV PATH=$PATH:/home/flaskapp/.local/bin
 
