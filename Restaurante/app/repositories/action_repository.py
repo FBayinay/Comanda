@@ -1,35 +1,35 @@
 from typing import List, Optional
-from app.models import action
+from app.models import Action
 from app import db
 
 class ActionRepository:
-    # Guardar un nuevo rol en la base de datos
-    def save(self, action: action) -> action:
+    # Guardar un nueva acción en la base de datos
+    def save(self, action: Action) -> Action:
         db.session.add(action)  # Añadir el objeto action a la sesión de base de datos
         db.session.commit()   # Confirmar (commit) la transacción para guardar los cambios
         return action           # Retornar el objeto action guardado
 
-    # Actualizar un rol existente en la base de datos
-    def update(self, action: action, id: int) -> Optional[action]:
-        entity = self.find(id)  # Buscar el rol existente por ID
+    # Actualizar una acción existente en la base de datos
+    def update(self, action: Action, id: int) -> Optional[Action]:
+        entity = self.find(id)  # Buscar la acción existente por ID
         if entity is None:
-            return None         # Si no se encuentra el rol, retornar None
-        entity.nombre = action.nombre  # Actualizar el nombre del rol
+            return None         # Si no se encuentra la acción, retornar None
+        entity.nombre = action.nombre  # Actualizar el nombre del la acción
         db.session.commit()          # Confirmar los cambios
-        return entity                # Retornar el rol actualizado
+        return entity                # Retornar la acción actualizado
 
-    # Eliminar un rol de la base de datos
+    # Eliminar una acción de la base de datos
     def delete(self, id: int) -> None:
-        entity = self.find(id)  # Buscar el rol existente por ID
+        entity = self.find(id)  # Buscar la acción existente por ID
         if entity:
-            db.session.delete(entity)  # Eliminar el rol de la sesión de base de datos
+            db.session.delete(entity)  # Eliminar la acción de la sesión de base de datos
             db.session.commit()        # Confirmar la transacción
 
     # Obtener todos los actions de la base de datos
-    def all(self) -> List[action]:
-        return db.session.query(action).all()  # Obtener y retornar todos los actions
+    def all(self) -> List[Action]:
+        return db.session.query(Action).all()  # Obtener y retornar todos los actions
 
-    # Buscar un rol por ID
-    def find(self, id: int) -> Optional[action]:
-        return db.session.query(action).filter(action.id_accion == id).one_or_none()  
-        # Buscar el rol por ID y retornar uno o ninguno (si no se encuentra)
+    # Buscar una acción por ID
+    def find(self, id: int) -> Optional[Action]:
+        return db.session.query(Action).filter(Action.id_accion == id).one_or_none()  
+        # Buscar la acción por ID y retornar una o ninguna (si no se encuentra)
