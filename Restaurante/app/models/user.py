@@ -16,4 +16,3 @@ class User(db.Model):
                 f'dni={self.dni}, email={self.email}, calle={self.calle}, numero={self.numero}, '
                 f'rol_id={self.rol_id}, id_accion={self.id_accion}>')
 
-
