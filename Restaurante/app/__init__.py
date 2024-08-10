@@ -3,7 +3,7 @@ from flask_marshmallow import Marshmallow
 import os
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-from app.route import init_app as init_route_app
+from app.route import RouteApp
 from app.config import config
 
 
@@ -26,7 +26,8 @@ def create_app() -> None:
     ma.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
-    init_route_app(app)
+    route_app = RouteApp()
+    route_app.init_app(app)
 
     # Importación de los modelos
     with app.app_context():
