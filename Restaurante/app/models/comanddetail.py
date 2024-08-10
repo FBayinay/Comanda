@@ -1,3 +1,5 @@
+from app import db
+
 class CommandDetail(db.Model):
     __tablename__ = 'detalles_comanda'
     id_detalles = db.Column(db.Integer, primary_key=True)

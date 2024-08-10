@@ -22,15 +22,24 @@ def create_app() -> None:
     app = Flask(__name__)
     f = config.factory(app_context if app_context else 'development')
     app.config.from_object(f)
-    init_route_app(app)
+     # Inicialización de extensiones
     ma.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
-    
-    
+    init_route_app(app)
+
+    # Importación de los modelos
+    with app.app_context():
+        from app.models import (
+            Role, Action, User, Login, Product, Stock, Supplier, Order,
+            WarehouseMovement, Table, MenuCategory, Menu, MenuItem, Command,
+            CommandDetail, Receipt
+        )
+        # Crear todas las tablas si no existen
+        db.create_all()
     
     @app.shell_context_processor    
     def ctx():
-        return {"app": app}
+        return {"app": app, "db": db}
     
     return app
