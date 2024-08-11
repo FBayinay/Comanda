@@ -29,6 +29,20 @@ services:
     volumes:
       - postgres_prod_data:/var/lib/postgresql/data
 
+  # Base de datos PostgreSQL de testing
+  postgres_test:
+    image: postgres
+    container_name: postgres_test
+    restart: always
+    ports:
+      - "5435:5432"  # Cambia el puerto para evitar conflictos
+    environment:
+      POSTGRES_USER: restaurante_test
+      POSTGRES_PASSWORD: 159753
+      POSTGRES_DB: comanda_test
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+
   # Herramienta pgAdmin para gestionar las bases de datos
   pgadmin:
     image: dpage/pgadmin4
@@ -42,6 +56,7 @@ services:
     depends_on:
       - postgres_dev
       - postgres_prod
+      - postgres_test
 
   # Aplicación Flask
   flask:
@@ -53,6 +68,7 @@ services:
     depends_on:
       - postgres_dev
       - postgres_prod
+      - postgres_test
     env_file:
       - .env  # Especifica la ruta del archivo .env
     volumes:
@@ -61,3 +77,4 @@ services:
 volumes:
   postgres_dev_data:
   postgres_prod_data:
+  postgres_test_data:  # Volumen para la base de datos de testing
