@@ -1,0 +1,48 @@
+Para agregar en mesa:
+{
+    "numero_mesa": 4,
+    "capacidad": 4,
+    "estado": "Disponible"
+}
+////Para agregar en login:
+{
+    "id_usuario": 1,
+    "username": "usuario123",
+    "password_hash": "hash_del_password"
+}
+
+
+////Para agregar en acción:
+{
+    "nombre": "Nueva Acción"
+}
+
+
+
+/////Para agregar en roles:
+
+
+{
+    "nombre": "Administrador"
+}
+
+
+
+
+
+
+
+
+
+
+Para agregar en usuario:
+{
+    "nombre": "Juan",
+    "apellido": "Pérez",
+    "dni": "12345678",
+    "email": "juan.perez@example.com",
+    "calle": "Av. Siempre Viva",
+    "numero": "742",
+    "rol_id": 1,
+    "id_accion": 2
+}
