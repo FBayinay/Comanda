@@ -7,18 +7,11 @@ from app.models import Role
 
 class TestRoleRepository(unittest.TestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        load_dotenv(dotenv_path='../docker/.env')  # Asegúrate de que esta ruta es correcta
-
     def setUp(self):
+        os.environ['FLASK_CONTEXT'] = 'testing'
         self.app = create_app()  # Usa la configuración por defecto
         self.app_context = self.app.app_context()
         self.app_context.push()
-
-        self.app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('TEST_DATABASE_URI')
-        
-        print(f"SQLALCHEMY_DATABASE_URI: {self.app.config['SQLALCHEMY_DATABASE_URI']}")
         
         db.create_all()
         self.repo = RoleRepository()

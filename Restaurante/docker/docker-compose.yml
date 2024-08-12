@@ -78,7 +78,6 @@ services:
 volumes:
   postgres_dev_data:
   postgres_prod_data:
-  postgres_test_data:
 
 networks:
   mired:
