@@ -4,7 +4,7 @@ import os
 
 # Cargar las variables de entorno desde el archivo .env
 basedir = os.path.abspath(Path(__file__).parents[2])
-load_dotenv(os.path.join(basedir, '../../docker/.env'))
+load_dotenv(os.path.join(basedir, 'docker','.env'))
 
 class Config(object):
     TESTING = False
@@ -37,15 +37,11 @@ class ProductionConfig(Config):
     def init_app(cls, app):
         Config.init_app(app)
 
-def factory(config_name):
+def factory(app):
     configuration = {
         'testing': TestConfig,
         'development': DevelopmentConfig,
         'production': ProductionConfig
     }
     
-    config = configuration.get(config_name.lower())
-    if config is None:
-        raise ValueError(f"Configuración '{config_name}' no encontrada.")
-    
-    return config
+    return configuration[app]

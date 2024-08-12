@@ -14,6 +14,8 @@ services:
       POSTGRES_DB: comanda_dev
     volumes:
       - postgres_dev_data:/var/lib/postgresql/data
+    networks:
+      - mired
 
   # Base de datos PostgreSQL de producción
   postgres_prod:
@@ -28,21 +30,10 @@ services:
       POSTGRES_DB: comanda_prod
     volumes:
       - postgres_prod_data:/var/lib/postgresql/data
+    networks:
+      - mired
 
-  # Base de datos PostgreSQL de testing
-  postgres_test:
-    image: postgres
-    container_name: postgres_test
-    restart: always
-    ports:
-      - "5435:5432"  # Cambia el puerto para evitar conflictos
-    environment:
-      POSTGRES_USER: restaurante_test
-      POSTGRES_PASSWORD: 159753
-      POSTGRES_DB: comanda_test
-    volumes:
-      - postgres_test_data:/var/lib/postgresql/data
-
+ 
   # Herramienta pgAdmin para gestionar las bases de datos
   pgadmin:
     image: dpage/pgadmin4
@@ -56,25 +47,40 @@ services:
     depends_on:
       - postgres_dev
       - postgres_prod
-      - postgres_test
+    networks:
+      - mired
 
   # Aplicación Flask
-  flask:
-    build: ..
+  flask_app:
+    build:
+      context: ../
+      dockerfile: Dockerfile
     container_name: flask_app
+    image: estructuraflask:v1.0.0
     command: flask run --host=0.0.0.0
     ports:
       - "5000:5000"
     depends_on:
       - postgres_dev
       - postgres_prod
-      - postgres_test
+    environment:
+      FLASK_CONTEXT: ${FLASK_CONTEXT}
+      SQLALCHEMY_TRACK_MODIFICATIONS: ${SQLALCHEMY_TRACK_MODIFICATIONS}
+      SQLALCHEMY_RECORD_QUERIES: ${SQLALCHEMY_RECORD_QUERIES}
+      SQLALCHEMY_DATABASE_URI: ${SQLALCHEMY_DATABASE_URI}
     env_file:
-      - .env  # Especifica la ruta del archivo .env
+      - .env
     volumes:
-      - .:/app
+      - ../app:/app
+    networks:
+      - mired
 
 volumes:
   postgres_dev_data:
   postgres_prod_data:
-  postgres_test_data:  # Volumen para la base de datos de testing
+  postgres_test_data:
+
+networks:
+  mired:
+    external: true
+

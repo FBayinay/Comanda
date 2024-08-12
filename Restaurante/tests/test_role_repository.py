@@ -12,13 +12,17 @@ class TestRoleRepository(unittest.TestCase):
         load_dotenv(dotenv_path='../docker/.env')  # Asegúrate de que esta ruta es correcta
 
     def setUp(self):
-        self.app = create_app()  # Crea una instancia de la aplicación
-        self.app_context = self.app.app_context()  # Crea un contexto de la aplicación
-        self.app_context.push()  # Empuja el contexto de la aplicación
+        self.app = create_app()  # Usa la configuración por defecto
+        self.app_context = self.app.app_context()
+        self.app_context.push()
 
         self.app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('TEST_DATABASE_URI')
-        db.create_all()  # Crea todas las tablas
+        
+        print(f"SQLALCHEMY_DATABASE_URI: {self.app.config['SQLALCHEMY_DATABASE_URI']}")
+        
+        db.create_all()
         self.repo = RoleRepository()
+
 
     def tearDown(self):
         db.session.remove()  # Elimina la sesión de la base de datos
