@@ -1,6 +1,5 @@
 import unittest
 import os
-from dotenv import load_dotenv
 from app import create_app, db
 from app.repositories import RoleRepository
 from app.models import Role
