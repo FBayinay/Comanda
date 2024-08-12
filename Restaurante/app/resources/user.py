@@ -1,7 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.repositories import UserRepository
-from app.models import User, Role, Action
-
+from app.models import User
 user_routes = Blueprint('user_routes', __name__)
 user_repo = UserRepository()
 
