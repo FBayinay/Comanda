@@ -55,3 +55,10 @@ class UserRepository:
     # Verificar si una acción existe
     def _action_exists(self, id_accion: int) -> bool:
         return db.session.query(Action).filter(Action.id_accion == id_accion).scalar() is not None
+    # Verificar si el email ya existe
+    def email_exists(self, email: str) -> bool:
+        return db.session.query(User).filter(User.email == email).scalar() is not None
+
+    # Verificar si el DNI ya existe
+    def dni_exists(self, dni: str) -> bool:
+        return db.session.query(User).filter(User.dni == dni).scalar() is not None
