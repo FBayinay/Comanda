@@ -5,7 +5,7 @@ from .login_services import LoginService
 from .menu_category_services import MenuCategoryService
 from .menu_item_services import MenuItemService
 from .menu_services import MenuService
-from .movement_services import MovementService
+from .warehouse_movement_services import MovementService
 from .order_services import OrderService
 from .product_services import ProductService
 from .receipt_services import ReceiptService

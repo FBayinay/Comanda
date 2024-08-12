@@ -1,5 +1,5 @@
 from typing import List, Optional
-from app.models import WarehouseMovement  # Importar desde movement/models
+from app.models import WarehouseMovement 
 from app import db
 
 class WarehouseMovementRepository:
