@@ -1,5 +1,5 @@
 from marshmallow import fields, Schema, post_load
-from app.models.roles import Role
+from app.models import Role
 
 class RoleSchema(Schema):
     id_rol = fields.Integer(dump_only=True)

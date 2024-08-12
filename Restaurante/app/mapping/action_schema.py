@@ -1,5 +1,5 @@
 from marshmallow import fields, Schema, post_load
-from app.models.action import Action  
+from app.models import Action  
 
 class ActionSchema(Schema):
     id_accion = fields.Integer(dump_only=True)  
