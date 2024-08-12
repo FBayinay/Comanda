@@ -11,6 +11,6 @@ from .menu_category_repository import MenuCategoryRepository
 from .menu_item_repository      import MenuItemRepository
 from .command_repository        import  CommandRepository
 from .command_detail_repository import  CommandDetailRepository
-from .movement_repository       import  WarehouseMovementRepository
+from .warehouse_movement_repository       import  WarehouseMovementRepository
 from .order_repository          import OrderRepository
 from .receipt_repository         import ReceiptRepository

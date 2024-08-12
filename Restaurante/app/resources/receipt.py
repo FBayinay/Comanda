@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.repositories.receipt_repository import ReceiptRepository
+from app.repositories import ReceiptRepository
 from app.models import Receipt  # Importar desde app/models
 
 receipt_routes = Blueprint('receipt_routes', __name__)

@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.repositories import ProductRepository
-from app.models.product import Product
+from app.models import Product
 
 product_routes = Blueprint('product_routes', __name__)
 product_repo = ProductRepository()

@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.repositories import TableRepository
-from app.models.table import Table
+from app.models import Table
 
 table_routes = Blueprint('table_routes', __name__)
 table_repo = TableRepository()

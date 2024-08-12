@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.repositories.movement_repository import WarehouseMovementRepository
+from app.repositories import WarehouseMovementRepository
 from app.models import WarehouseMovement  # Importar desde movement/models
 
 movement_routes = Blueprint('movement_routes', __name__)

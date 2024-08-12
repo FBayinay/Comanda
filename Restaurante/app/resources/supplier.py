@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.repositories import SupplierRepository
-from app.models.supplier import Supplier
+from app.models import Supplier
 
 supplier_routes = Blueprint('supplier_routes', __name__)
 supplier_repo = SupplierRepository()

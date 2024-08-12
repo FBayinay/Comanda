@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.repositories import LoginRepository
-from app.models.login import Login
-from app.models.user import User
+from app.models import Login
+from app.models  import User
 
 login_routes = Blueprint('login_routes', __name__)
 login_repo = LoginRepository()

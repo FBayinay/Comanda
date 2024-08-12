@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.repositories.command_repository import CommandRepository
+from app.repositories import CommandRepository
 from app.models import Command  # Importar desde app/models
 
 command_routes = Blueprint('command_routes', __name__)

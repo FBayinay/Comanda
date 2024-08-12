@@ -12,6 +12,6 @@ from .menu_catergory   import menu_category_routes
 from .menu_item       import menu_item_routes
 from .command          import command_routes
 from .command_detail   import command_detail_routes
-from .movement         import movement_routes
+from .warehouse_movement         import movement_routes
 from .receipt          import receipt_routes
 from .order           import order_routes

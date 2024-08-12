@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.repositories import StockRepository
-from app.models.stock import Stock
+from app.models import Stock
 
 stock_routes = Blueprint('stock_routes', __name__)
 stock_repo = StockRepository()

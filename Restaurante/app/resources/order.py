@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from app.repositories.order_repository import OrderRepository
-from app.models import Order  # Importar desde app/models
+from app.repositories import OrderRepository
+from app.models import Order  
 
 order_routes = Blueprint('order_routes', __name__)
 order_repo = OrderRepository()
