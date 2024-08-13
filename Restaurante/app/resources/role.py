@@ -9,6 +9,10 @@ role_schema = RoleSchema()
 response_schema = ResponseSchema()
 role_service = RoleService()
 
+@role_routes.route('/roles', methods=['GET'])
+def index():
+    return {"roles": role_schema.dump(role_service.all(), many=True)}, 200
+
 # Crear un nuevo rol (Create)
 @role_routes.route('/roles', methods=['POST'])
 def create_role():
@@ -23,13 +27,6 @@ def create_role():
         response_builder.add_message(str(e)).add_status_code(300)
         return response_schema.dump(response_builder.build()), 400
 
-# Obtener todos los roles (Read)
-@role_routes.route('/roles', methods=['GET'])
-def get_roles():
-    response_builder = ResponseBuilder()
-    roles = role_service.all()
-    response_builder.add_message("Roles retrieved").add_status_code(100).add_data([role_schema.dump(role) for role in roles])
-    return response_schema.dump(response_builder.build()), 200
 
 # Obtener un rol por ID (Read)
 @role_routes.route('/roles/<int:id>', methods=['GET'])
