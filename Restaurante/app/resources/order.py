@@ -1,96 +1,82 @@
 from flask import Blueprint, request, jsonify
-from app.repositories.order_repository import OrderRepository
-from app.models import Order  # Importar desde app/models
+from app.mapping import OrderSchema, ResponseSchema
+from app.services.response_message_services import ResponseBuilder
+from app.services.order_services import OrderService
 
 order_routes = Blueprint('order_routes', __name__)
-order_repo = OrderRepository()
+order_schema = OrderSchema()
+response_schema = ResponseSchema()
+order_service = OrderService()
 
-# Crear un nuevo pedido (Create)
 @order_routes.route('/orders', methods=['POST'])
 def create_order():
     data = request.json
-    new_order = Order(
-        id_usuario=data['id_usuario'],
-        id_producto=data['id_producto'],
-        id_proveedor=data['id_proveedor'],
-        cantidad=data['cantidad'],
-        precio_unitario=data['precio_unitario'],
-        precio_total=data['precio_total'],
-        fecha=data.get('fecha')  # Fecha puede ser opcional; si no se proporciona, se asignará la actual
-    )
-    saved_order = order_repo.save(new_order)
-    return jsonify({
-        "id": saved_order.id_pedido,
-        "id_usuario": saved_order.id_usuario,
-        "id_producto": saved_order.id_producto,
-        "id_proveedor": saved_order.id_proveedor,
-        "cantidad": saved_order.cantidad,
-        "precio_unitario": saved_order.precio_unitario,
-        "precio_total": saved_order.precio_total,
-        "fecha": saved_order.fecha.isoformat()  # Convertir a string para JSON
-    }), 201
+    required_fields = ['id_usuario', 'id_producto', 'id_proveedor', 'cantidad', 'precio_unitario', 'precio_total']
+    if not all(field in data for field in required_fields):
+        return jsonify({"error": "Datos incompletos"}), 400
 
-# Obtener todos los pedidos (Read)
+    response_builder = ResponseBuilder()
+    try:
+        new_order = order_service.create_order(
+            id_usuario=data['id_usuario'],
+            id_producto=data['id_producto'],
+            id_proveedor=data['id_proveedor'],
+            cantidad=data['cantidad'],
+            precio_unitario=data['precio_unitario'],
+            precio_total=data['precio_total']
+        )
+        response_builder.add_message("Order created").add_status_code(100).add_data(order_schema.dump(new_order))
+        return response_schema.dump(response_builder.build()), 201
+    except ValueError as e:
+        response_builder.add_message(str(e)).add_status_code(300)
+        return response_schema.dump(response_builder.build()), 400
+
 @order_routes.route('/orders', methods=['GET'])
 def get_orders():
-    orders = order_repo.all()
-    return jsonify([{
-        "id": order.id_pedido,
-        "id_usuario": order.id_usuario,
-        "id_producto": order.id_producto,
-        "id_proveedor": order.id_proveedor,
-        "cantidad": order.cantidad,
-        "precio_unitario": order.precio_unitario,
-        "precio_total": order.precio_total,
-        "fecha": order.fecha.isoformat()  # Convertir a string para JSON
-    } for order in orders])
+    response_builder = ResponseBuilder()
+    orders = order_service.get_all_orders()
+    response_builder.add_message("Orders retrieved").add_status_code(100).add_data([order_schema.dump(order) for order in orders])
+    return response_schema.dump(response_builder.build()), 200
 
-# Obtener un pedido por ID (Read)
 @order_routes.route('/orders/<int:id>', methods=['GET'])
-def get_order(id):
-    order = order_repo.find(id)
+def get_order(id: int):
+    response_builder = ResponseBuilder()
+    order = order_service.get_order_by_id(id)
     if order:
-        return jsonify({
-            "id": order.id_pedido,
-            "id_usuario": order.id_usuario,
-            "id_producto": order.id_producto,
-            "id_proveedor": order.id_proveedor,
-            "cantidad": order.cantidad,
-            "precio_unitario": order.precio_unitario,
-            "precio_total": order.precio_total,
-            "fecha": order.fecha.isoformat()  # Convertir a string para JSON
-        })
-    return jsonify({"error": "Order not found"}), 404
+        response_builder.add_message("Order found").add_status_code(100).add_data(order_schema.dump(order))
+        return response_schema.dump(response_builder.build()), 200
+    else:
+        response_builder.add_message("Order not found").add_status_code(300).add_data({'id': id})
+        return response_schema.dump(response_builder.build()), 404
 
-# Actualizar un pedido existente (Update)
 @order_routes.route('/orders/<int:id>', methods=['PUT'])
-def update_order(id):
+def update_order(id: int):
     data = request.json
-    order = Order(
-        id_usuario=data['id_usuario'],
-        id_producto=data['id_producto'],
-        id_proveedor=data['id_proveedor'],
-        cantidad=data['cantidad'],
-        precio_unitario=data['precio_unitario'],
-        precio_total=data['precio_total'],
-        fecha=data.get('fecha')  # Fecha puede ser opcional; si no se proporciona, se asignará la actual
-    )
-    updated_order = order_repo.update(order, id)
-    if updated_order:
-        return jsonify({
-            "id": updated_order.id_pedido,
-            "id_usuario": updated_order.id_usuario,
-            "id_producto": updated_order.id_producto,
-            "id_proveedor": updated_order.id_proveedor,
-            "cantidad": updated_order.cantidad,
-            "precio_unitario": updated_order.precio_unitario,
-            "precio_total": updated_order.precio_total,
-            "fecha": updated_order.fecha.isoformat()  # Convertir a string para JSON
-        })
-    return jsonify({"error": "Order not found"}), 404
+    response_builder = ResponseBuilder()
+    try:
+        updated_order = order_service.update_order(
+            id,
+            id_usuario=data.get('id_usuario'),
+            id_producto=data.get('id_producto'),
+            id_proveedor=data.get('id_proveedor'),
+            cantidad=data.get('cantidad'),
+            precio_unitario=data.get('precio_unitario'),
+            precio_total=data.get('precio_total'),
+            fecha=data.get('fecha')  # Asegúrate de manejar la conversión a datetime si es necesario
+        )
+        if updated_order:
+            response_builder.add_message("Order updated").add_status_code(100).add_data(order_schema.dump(updated_order))
+            return response_schema.dump(response_builder.build()), 200
+        else:
+            response_builder.add_message("Order not found").add_status_code(300).add_data({'id': id})
+            return response_schema.dump(response_builder.build()), 404
+    except ValueError as e:
+        response_builder.add_message(str(e)).add_status_code(300)
+        return response_schema.dump(response_builder.build()), 400
 
-# Eliminar un pedido (Delete)
 @order_routes.route('/orders/<int:id>', methods=['DELETE'])
-def delete_order(id):
-    order_repo.delete(id)
-    return jsonify({"message": "Order deleted"}), 204
+def delete_order(id: int):
+    response_builder = ResponseBuilder()
+    order_service.delete_order(id)
+    response_builder.add_message("Order deleted").add_status_code(100).add_data({'id': id})
+    return response_schema.dump(response_builder.build()), 204

@@ -1,71 +1,73 @@
 from flask import Blueprint, request, jsonify
-from app.repositories import ProductRepository
-from app.models.product import Product
+from app.mapping import ProductSchema, ResponseSchema
+from app.services.response_message_services import ResponseBuilder
+from app.services.product_services import ProductService
 
 product_routes = Blueprint('product_routes', __name__)
-product_repo = ProductRepository()
+product_schema = ProductSchema()
+response_schema = ResponseSchema()
+product_service = ProductService()
 
-# Crear un nuevo producto (Create)
 @product_routes.route('/productos', methods=['POST'])
 def create_product():
     data = request.json
     if 'nombre' not in data:
         return jsonify({"error": "Datos incompletos"}), 400
 
-    new_product = Product(
-        nombre=data['nombre']
-    )
-    
-    saved_product = product_repo.save(new_product)
-    return jsonify({
-        "id": saved_product.id_producto,
-        "nombre": saved_product.nombre
-    }), 201
+    response_builder = ResponseBuilder()
+    try:
+        new_product = product_service.create_product(nombre=data['nombre'])
+        response_builder.add_message("Product created").add_status_code(100).add_data(product_schema.dump(new_product))
+        return response_schema.dump(response_builder.build()), 201
+    except ValueError as e:
+        response_builder.add_message(str(e)).add_status_code(300)
+        return response_schema.dump(response_builder.build()), 400
 
-# Obtener todos los productos (Read)
 @product_routes.route('/productos', methods=['GET'])
 def get_products():
-    products = product_repo.all()
-    return jsonify([{
-        "id": product.id_producto,
-        "nombre": product.nombre
-    } for product in products])
+    response_builder = ResponseBuilder()
+    products = product_service.get_all_products()
+    response_builder.add_message("Products retrieved").add_status_code(100).add_data([product_schema.dump(product) for product in products])
+    return response_schema.dump(response_builder.build()), 200
 
-# Obtener un producto por ID (Read)
 @product_routes.route('/productos/<int:id>', methods=['GET'])
-def get_product(id):
-    product = product_repo.find(id)
+def get_product(id: int):
+    response_builder = ResponseBuilder()
+    product = product_service.get_product_by_id(id)
     if product:
-        return jsonify({
-            "id": product.id_producto,
-            "nombre": product.nombre
-        })
-    return jsonify({"error": "Producto no encontrado"}), 404
+        response_builder.add_message("Product found").add_status_code(100).add_data(product_schema.dump(product))
+        return response_schema.dump(response_builder.build()), 200
+    else:
+        response_builder.add_message("Product not found").add_status_code(300).add_data({'id': id})
+        return response_schema.dump(response_builder.build()), 404
 
-# Actualizar un producto existente (Update)
 @product_routes.route('/productos/<int:id>', methods=['PUT'])
-def update_product(id):
+def update_product(id: int):
     data = request.json
     if 'nombre' not in data:
         return jsonify({"error": "Datos incompletos"}), 400
 
-    product = Product(
-        nombre=data['nombre']
-    )
-    
-    updated_product = product_repo.update(product, id)
-    if updated_product:
-        return jsonify({
-            "id": updated_product.id_producto,
-            "nombre": updated_product.nombre
-        })
-    return jsonify({"error": "Producto no encontrado"}), 404
+    response_builder = ResponseBuilder()
+    try:
+        updated_product = product_service.update_product(id, nombre=data['nombre'])
+        if updated_product:
+            response_builder.add_message("Product updated").add_status_code(100).add_data(product_schema.dump(updated_product))
+            return response_schema.dump(response_builder.build()), 200
+        else:
+            response_builder.add_message("Product not found").add_status_code(300).add_data({'id': id})
+            return response_schema.dump(response_builder.build()), 404
+    except ValueError as e:
+        response_builder.add_message(str(e)).add_status_code(300)
+        return response_schema.dump(response_builder.build()), 400
 
-# Eliminar un producto (Delete)
 @product_routes.route('/productos/<int:id>', methods=['DELETE'])
-def delete_product(id):
-    product = product_repo.find(id)
+def delete_product(id: int):
+    response_builder = ResponseBuilder()
+    product = product_service.get_product_by_id(id)
     if product:
-        product_repo.delete(id)
-        return jsonify({"message": "Producto eliminado"}), 204
-    return jsonify({"error": "Producto no encontrado"}), 404
+        product_service.delete_product(id)
+        response_builder.add_message("Product deleted").add_status_code(100).add_data({'id': id})
+        return response_schema.dump(response_builder.build()), 204
+    else:
+        response_builder.add_message("Product not found").add_status_code(300).add_data({'id': id})
+        return response_schema.dump(response_builder.build()), 404
