@@ -1,5 +1,5 @@
 from .action import Action
-from .comand_detail import  CommandDetail 
+from .command_detail import  CommandDetail 
 from .command import Command
 from .login import Login
 from .menu import Menu

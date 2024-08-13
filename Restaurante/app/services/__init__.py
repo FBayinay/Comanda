@@ -1,6 +1,6 @@
 from .action_services import ActionService
-from .comand_detail_services import CommandDetailService
-from .comand_services import CommandService
+from .command_detail_services import CommandDetailService
+from .command_services import CommandService
 from .login_services import LoginService
 from .menu_category_services import MenuCategoryService
 from .menu_item_services import MenuItemService
@@ -14,3 +14,4 @@ from .stock_services import StockService
 from .supplier_services import SupplierService
 from .table_services import TableService
 from .user_services import UserService
+from .response_message_services import ResponseMessage

@@ -1,44 +1,74 @@
 from flask import Blueprint, request, jsonify
-from app.repositories import MenuRepository
-from app.models import Menu
+from app.mapping import MenuSchema, ResponseSchema
+from app.services.response_message_services import ResponseBuilder
+from app.services.menu_services import MenuService
 
 menu_routes = Blueprint('menu_routes', __name__)
-menu_repo = MenuRepository()
+menu_schema = MenuSchema()
+response_schema = ResponseSchema()
+menu_service = MenuService()
 
-# Crear un nuevo menú (Create)
 @menu_routes.route('/menus', methods=['POST'])
 def create_menu():
     data = request.json
-    new_menu = Menu(tipo=data['tipo'], fecha_inicio=data['fecha_inicio'], fecha_fin=data.get('fecha_fin'))
-    saved_menu = menu_repo.save(new_menu)
-    return jsonify({"id": saved_menu.id_menu, "tipo": saved_menu.tipo, "fecha_inicio": saved_menu.fecha_inicio, "fecha_fin": saved_menu.fecha_fin}), 201
+    if not all(key in data for key in ('tipo', 'fecha_inicio')):
+        return jsonify({"error": "Datos incompletos"}), 400
 
-# Obtener todos los menús (Read)
+    response_builder = ResponseBuilder()
+    try:
+        new_menu = menu_service.create_menu(
+            tipo=data['tipo'],
+            fecha_inicio=data['fecha_inicio'],
+            fecha_fin=data.get('fecha_fin')
+        )
+        response_builder.add_message("Menu created").add_status_code(100).add_data(menu_schema.dump(new_menu))
+        return response_schema.dump(response_builder.build()), 201
+    except ValueError as e:
+        response_builder.add_message(str(e)).add_status_code(300)
+        return response_schema.dump(response_builder.build()), 400
+
 @menu_routes.route('/menus', methods=['GET'])
 def get_menus():
-    menus = menu_repo.all()
-    return jsonify([{"id": menu.id_menu, "tipo": menu.tipo, "fecha_inicio": menu.fecha_inicio, "fecha_fin": menu.fecha_fin} for menu in menus])
+    response_builder = ResponseBuilder()
+    menus = menu_service.get_all_menus()
+    response_builder.add_message("Menus retrieved").add_status_code(100).add_data([menu_schema.dump(menu) for menu in menus])
+    return response_schema.dump(response_builder.build()), 200
 
-# Obtener un menú por ID (Read)
 @menu_routes.route('/menus/<int:id>', methods=['GET'])
-def get_menu(id):
-    menu = menu_repo.find(id)
+def get_menu(id: int):
+    response_builder = ResponseBuilder()
+    menu = menu_service.get_menu_by_id(id)
     if menu:
-        return jsonify({"id": menu.id_menu, "tipo": menu.tipo, "fecha_inicio": menu.fecha_inicio, "fecha_fin": menu.fecha_fin})
-    return jsonify({"error": "Menu not found"}), 404
+        response_builder.add_message("Menu found").add_status_code(100).add_data(menu_schema.dump(menu))
+        return response_schema.dump(response_builder.build()), 200
+    else:
+        response_builder.add_message("Menu not found").add_status_code(300).add_data({'id': id})
+        return response_schema.dump(response_builder.build()), 404
 
-# Actualizar un menú existente (Update)
 @menu_routes.route('/menus/<int:id>', methods=['PUT'])
-def update_menu(id):
+def update_menu(id: int):
     data = request.json
-    menu = Menu(tipo=data['tipo'], fecha_inicio=data['fecha_inicio'], fecha_fin=data.get('fecha_fin'))
-    updated_menu = menu_repo.update(menu, id)
-    if updated_menu:
-        return jsonify({"id": updated_menu.id_menu, "tipo": updated_menu.tipo, "fecha_inicio": updated_menu.fecha_inicio, "fecha_fin": updated_menu.fecha_fin})
-    return jsonify({"error": "Menu not found"}), 404
+    response_builder = ResponseBuilder()
+    try:
+        updated_menu = menu_service.update_menu(
+            id,
+            tipo=data.get('tipo'),
+            fecha_inicio=data.get('fecha_inicio'),
+            fecha_fin=data.get('fecha_fin')
+        )
+        if updated_menu:
+            response_builder.add_message("Menu updated").add_status_code(100).add_data(menu_schema.dump(updated_menu))
+            return response_schema.dump(response_builder.build()), 200
+        else:
+            response_builder.add_message("Menu not found").add_status_code(300).add_data({'id': id})
+            return response_schema.dump(response_builder.build()), 404
+    except ValueError as e:
+        response_builder.add_message(str(e)).add_status_code(300)
+        return response_schema.dump(response_builder.build()), 400
 
-# Eliminar un menú (Delete)
 @menu_routes.route('/menus/<int:id>', methods=['DELETE'])
-def delete_menu(id):
-    menu_repo.delete(id)
-    return jsonify({"message": "Menu deleted"}), 204
+def delete_menu(id: int):
+    response_builder = ResponseBuilder()
+    menu_service.delete_menu(id)
+    response_builder.add_message("Menu deleted").add_status_code(100).add_data({'id': id})
+    return response_schema.dump(response_builder.build()), 204

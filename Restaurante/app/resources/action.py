@@ -1,44 +1,49 @@
-from flask import Blueprint, request, jsonify
-from app.repositories import ActionRepository
-from app.models import Action
+from flask import Blueprint, request
+from app.mapping import ActionSchema, ResponseSchema
+from app.services.response_message_services import ResponseBuilder
+from app.services.action_services import ActionService
 
 action_routes = Blueprint('action_routes', __name__)
-action_repo = ActionRepository()
+action_schema = ActionSchema()
+response_schema = ResponseSchema()
+action_service = ActionService()
 
-# Crear un nuevo rol (Create)
-@action_routes.route('/actions', methods=['POST'])
-def create_action():
-    data = request.json
-    new_action = Action(nombre=data['nombre'])
-    saved_action = action_repo.save(new_action)
-    return jsonify({"id": saved_action.id_accion, "nombre": saved_action.nombre}), 201
-
-# Obtener todos los actions (Read)
 @action_routes.route('/actions', methods=['GET'])
-def get_actions():
-    actions = action_repo.all()
-    return jsonify([{"id": action.id_accion, "nombre": action.nombre} for action in actions])
+def index():
+    return {"actions": action_schema.dump(action_service.all(), many=True)}, 200
 
-# Obtener un rol por ID (Read)
 @action_routes.route('/actions/<int:id>', methods=['GET'])
-def get_action(id):
-    action = action_repo.find(id)
+def find(id: int):
+    response_builder = ResponseBuilder()
+    action = action_service.find(id)
     if action:
-        return jsonify({"id": action.id_accion, "nombre": action.nombre})
-    return jsonify({"error": "Action not found"}), 404
+        response_builder.add_message("Action found").add_status_code(100).add_data(action_schema.dump(action))
+        return response_schema.dump(response_builder.build()), 200
+    else:
+        response_builder.add_message("Action not found").add_status_code(300).add_data({'id': id})
+        return response_schema.dump(response_builder.build()), 404
 
-# Actualizar un rol existente (Update)
+@action_routes.route('/actions', methods=['POST'])
+def post_action():
+    action = action_schema.load(request.json)
+    saved_action = action_service.save(action)
+    return {"action": action_schema.dump(saved_action)}, 201
+
 @action_routes.route('/actions/<int:id>', methods=['PUT'])
-def update_action(id):
-    data = request.json
-    action = Action(nombre=data['nombre'])
-    updated_action = action_repo.update(action, id)
+def update_action(id: int):
+    action = action_schema.load(request.json)
+    response_builder = ResponseBuilder()
+    updated_action = action_service.update(action, id)
     if updated_action:
-        return jsonify({"id": updated_action.id_accion, "nombre": updated_action.nombre})
-    return jsonify({"error": "Action not found"}), 404
+        response_builder.add_message("Action updated").add_status_code(100).add_data(action_schema.dump(updated_action))
+        return response_schema.dump(response_builder.build()), 200
+    else:
+        response_builder.add_message("Action not found").add_status_code(300).add_data({'id': id})
+        return response_schema.dump(response_builder.build()), 404
 
-# Eliminar un rol (Delete)
 @action_routes.route('/actions/<int:id>', methods=['DELETE'])
-def delete_action(id):
-    action_repo.delete(id)
-    return jsonify({"message": "Action deleted"}), 204
+def delete_action(id: int):
+    action_service.delete(id)
+    response_builder = ResponseBuilder()
+    response_builder.add_message("Action deleted").add_status_code(100).add_data({'id': id})
+    return response_schema.dump(response_builder.build()), 200
