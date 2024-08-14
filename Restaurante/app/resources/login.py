@@ -8,20 +8,23 @@ login_schema = LoginSchema()
 response_schema = ResponseSchema()
 login_service = LoginService()
 
-@login_routes.route('/logins', methods=['POST'])
+@login_routes.route('/logins', methods=['POST', 'GET'])
 def create_login():
-    data = request.json
-    if not all(key in data for key in ('id_usuario', 'username', 'password')):
-        return jsonify({"error": "Datos incompletos"}), 400
+    if request.method == 'POST':
+        data = request.json
+        if not all(key in data for key in ('id_usuario', 'username', 'password')):
+            return jsonify({"error": "Datos incompletos"}), 400
 
-    response_builder = ResponseBuilder()
-    try:
-        new_login = login_service.create_login(data['id_usuario'], data['username'], data['password'])
-        response_builder.add_message("Login created").add_status_code(100).add_data(login_schema.dump(new_login))
-        return response_schema.dump(response_builder.build()), 201
-    except ValueError as e:
-        response_builder.add_message(str(e)).add_status_code(300)
-        return response_schema.dump(response_builder.build()), 400
+        response_builder = ResponseBuilder()
+        try:
+            new_login = login_service.create_login(data['id_usuario'], data['username'], data['password'])
+            response_builder.add_message("Login created").add_status_code(100).add_data(login_schema.dump(new_login))
+            return response_schema.dump(response_builder.build()), 201
+        except ValueError as e:
+            response_builder.add_message(str(e)).add_status_code(300)
+            return response_schema.dump(response_builder.build()), 400
+    elif request.method == 'GET':
+        return jsonify({"message": "Bienvenido a la ruta de logins"}), 200
 
 
 @login_routes.route('/logins/<int:id>', methods=['GET'])

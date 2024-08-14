@@ -5,13 +5,13 @@ class LoginSchema(Schema):
     id_login = fields.Integer(dump_only=True)
     id_usuario = fields.Integer(required=True)
     username = fields.String(required=True, validate=fields.Length(min=1, max=50))
-    password = fields.String(load_only=True, validate=fields.Length(min=8, max=100))  # Validación solo al cargar
+    password = fields.String(load_only=True, validate=fields.Length(min=8, max=100)) 
 
     @post_load
     def make_login(self, data, **kwargs):
         return Login(**data)
 
     @pre_dump
-    def remove_password_hash(self, data, **kwargs):
-        data.password_hash = None
+    def remove_password(self, data, **kwargs):
+        data.password = None
         return data

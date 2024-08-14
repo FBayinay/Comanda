@@ -38,8 +38,8 @@ class LoginService:
         :param password: str
         :return: Login
         """
-        password = self.hash_password(password)
-        return repository.create_login(id_usuario, username, password)
+        password_hash = self.hash_password(password)
+        return repository.create_login(id_usuario, username, password_hash)
 
     def get_login_by_id(self, login_id: int) -> Optional[Login]:
         """
@@ -58,8 +58,8 @@ class LoginService:
         return repository.get_login_by_username(username)
 
     def update_login(self, login_id: int, id_usuario: Optional[int] = None, 
-                     username: Optional[str] = None, 
-                     password_hash: Optional[str] = None) -> Optional[Login]:
+                 username: Optional[str] = None, 
+                 password: Optional[str] = None) -> Optional[Login]:
         """
         Update an existing login entry
         :param login_id: int
@@ -68,7 +68,12 @@ class LoginService:
         :param password_hash: Optional[str]
         :return: Optional[Login]
         """
+        if password:
+            password_hash = self.hash_password(password)
+        else:
+            password_hash = None
         return repository.update_login(login_id, id_usuario, username, password_hash)
+        
 
     def delete_login(self, login_id: int) -> Optional[Login]:
         """
