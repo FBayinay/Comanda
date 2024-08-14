@@ -63,7 +63,7 @@ class LoginServiceTestCase(unittest.TestCase):
 
         self.assertIsNotNone(login)
         self.assertEqual(login.id_usuario, self.user.id_usuario)
-        self.assertTrue(self.login_service.check_password('password123', login.password_hash))
+        self.assertTrue(self.login_service.check_password('password123', login.password))
 
     def test_get_login_by_id(self):
         # Crear un login de prueba

@@ -38,8 +38,8 @@ class LoginService:
         :param password: str
         :return: Login
         """
-        password_hash = self.hash_password(password)
-        return repository.create_login(id_usuario, username, password_hash)
+        password = self.hash_password(password)
+        return repository.create_login(id_usuario, username, password)
 
     def get_login_by_id(self, login_id: int) -> Optional[Login]:
         """
