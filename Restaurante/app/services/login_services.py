@@ -1,6 +1,7 @@
 from typing import Optional
-from app.models.login import Login
+from app.models import Login
 from app.repositories import LoginRepository
+import bcrypt
 
 repository = LoginRepository()
 
@@ -11,14 +12,33 @@ class LoginService:
     def __init__(self):
         pass
 
-    def create_login(self, id_usuario: int, username: str, password_hash: str) -> Login:
+    def hash_password(self, password: str) -> str:
+        """
+        Hash a password for storing.
+        :param password: str
+        :return: str
+        """
+        salt = bcrypt.gensalt()
+        return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+
+    def check_password(self, password: str, hashed: str) -> bool:
+        """
+        Verify a stored password against one provided by user.
+        :param password: str
+        :param hashed: str
+        :return: bool
+        """
+        return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
+
+    def create_login(self, id_usuario: int, username: str, password: str) -> Login:
         """
         Create a new login entry
         :param id_usuario: int
         :param username: str
-        :param password_hash: str
+        :param password: str
         :return: Login
         """
+        password_hash = self.hash_password(password)
         return repository.create_login(id_usuario, username, password_hash)
 
     def get_login_by_id(self, login_id: int) -> Optional[Login]:

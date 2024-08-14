@@ -1,113 +1,116 @@
 import unittest
 import os
 from app import create_app, db
-from app.models import User, Role, Action
-from app.services import UserService
+from app.models import User, Role, Action,Login
+from app.services import LoginService
 
-# Crear un servicio de usuarios
-user_service = UserService()
+# Crear un servicio de login
+login_service = LoginService()
 
-class UserServiceTestCase(unittest.TestCase):
+class LoginServiceTestCase(unittest.TestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         os.environ['FLASK_CONTEXT'] = 'testing'
-        self.app = create_app()  # Usa la configuración de pruebas
-        self.app_context = self.app.app_context()
-        self.app_context.push()
-        
+        cls.app = create_app() 
+        cls.app_context = cls.app.app_context()
+        cls.app_context.push()
         db.create_all()
 
-        # Insertar datos de prueba para Role y Action
-        self.role = Role(nombre='Administrador')
-        self.action = Action(nombre='Login')
+    @classmethod
+    def tearDownClass(cls):
+        db.session.remove()
+        db.drop_all()
+        cls.app_context.pop()
+
+    def setUp(self):
+        self.login_service = LoginService()
+        # Crear roles y acciones de prueba
+        self.role = Role(nombre='admin')
         db.session.add(self.role)
+        self.action = Action(nombre='manage_users')
         db.session.add(self.action)
         db.session.commit()
 
-        # Definir variables reutilizables para los tests
-        self.user_data = {
-            'nombre': 'Juan',
-            'apellido': 'Pérez',
-            'dni': '12345678',
-            'email': 'juan.perez@example.com',
-            'calle': 'Calle Falsa',
-            'numero': 123,
-            'id_accion': self.action.id_accion,
-            'rol_id': self.role.id_rol
-        }
+        # Crear usuario de prueba
+        self.user = User(
+            nombre='Federico',
+            apellido='Garcia',
+            dni='12345678',
+            email='fede@example.com',
+            calle='Av. Siempre Viva',
+            numero=742,
+            rol_id=self.role.id_rol,
+            id_accion=self.action.id_accion
+        )
+        db.session.add(self.user)
+        db.session.commit()
 
     def tearDown(self):
-        db.session.remove()  # Elimina la sesión de la base de datos
-        db.drop_all()  # Elimina todas las tablas
-        self.app_context.pop()  # Elimina el contexto de la aplicación
+        Login.query.delete()
+        User.query.delete()
+        Role.query.delete()
+        Action.query.delete()
+        db.session.commit()
 
-    def test_create_user(self):
-        user = user_service.create_user(**self.user_data)
-        self.assertIsNotNone(user.id_usuario)
-        self.assertEqual(user.nombre, self.user_data['nombre'])
-        self.assertEqual(user.email, self.user_data['email'])
-        self.assertEqual(user.rol_id, self.user_data['rol_id'])
-        self.assertEqual(user.id_accion, self.user_data['id_accion'])
+    def test_create_login(self):
+        # Test para crear un nuevo login
+        login = self.login_service.create_login(
+            id_usuario=self.user.id_usuario,
+            username='fedex',
+            password='password123'
+        )
 
-    def test_create_user_with_existing_email(self):
-        user_service.create_user(**self.user_data)
-        with self.assertRaises(ValueError) as context:
-            user_service.create_user(nombre='Otro Nombre', apellido='Otro Apellido', 
-                                     dni='87654321', email=self.user_data['email'], 
-                                     calle='Otra Calle', numero=456, 
-                                     id_accion=self.action.id_accion, rol_id=self.role.id_rol)
-        self.assertEqual(str(context.exception), "El email ya existe")
+        self.assertIsNotNone(login)
+        self.assertEqual(login.id_usuario, self.user.id_usuario)
+        self.assertTrue(self.login_service.check_password('password123', login.password_hash))
 
-    def test_create_user_with_existing_dni(self):
-        user_service.create_user(**self.user_data)
-        with self.assertRaises(ValueError) as context:
-            user_service.create_user(nombre='Otro Nombre', apellido='Otro Apellido', 
-                                     dni=self.user_data['dni'], email='otro.email@example.com', 
-                                     calle='Otra Calle', numero=456, 
-                                     id_accion=self.action.id_accion, rol_id=self.role.id_rol)
-        self.assertEqual(str(context.exception), "El DNI ya existe")
+    def test_get_login_by_id(self):
+        # Crear un login de prueba
+        login = self.login_service.create_login(
+            id_usuario=self.user.id_usuario,
+            username='fedex',
+            password='password123'
+        )
+        retrieved_login = self.login_service.get_login_by_id(login.id_login)
+        self.assertIsNotNone(retrieved_login)
+        self.assertEqual(retrieved_login.username, 'fedex')
 
-    def test_get_all_users(self):
-        user_service.create_user(**self.user_data)
-        users = user_service.get_all_users()
-        self.assertGreaterEqual(len(users), 1)
+    def test_get_login_by_username(self):
+        # Crear un login de prueba
+        login = self.login_service.create_login(
+            id_usuario=self.user.id_usuario,
+            username='fedex',
+            password='password123'
+        )
+        retrieved_login = self.login_service.get_login_by_username('fedex')
+        self.assertIsNotNone(retrieved_login)
+        self.assertEqual(retrieved_login.id_login, login.id_login)
 
-    def test_get_user_by_id(self):
-        user = user_service.create_user(**self.user_data)
-        fetched_user = user_service.get_user_by_id(user.id_usuario)
-        self.assertEqual(fetched_user.id_usuario, user.id_usuario)
-        self.assertEqual(fetched_user.email, self.user_data['email'])
+    def test_update_login(self):
+        # Crear un login de prueba
+        login = self.login_service.create_login(
+            id_usuario=self.user.id_usuario,
+            username='fedex',
+            password='password123'
+        )
+        updated_login = self.login_service.update_login(
+            login_id=login.id_login,
+            username='fedex_updated'
+        )
+        self.assertIsNotNone(updated_login)
+        self.assertEqual(updated_login.username, 'fedex_updated')
 
-    def test_update_user(self):
-        user = user_service.create_user(**self.user_data)
-        updated_email = 'nuevo.email@example.com'
-        updated_user = user_service.update_user(user.id_usuario, email=updated_email)
-        self.assertEqual(updated_user.email, updated_email)
-
-    def test_update_user_with_existing_email(self):
-        user_service.create_user(**self.user_data)
-        other_user = user_service.create_user(nombre='Otro Nombre', apellido='Otro Apellido', 
-                                              dni='87654321', email='otro.email@example.com', 
-                                              calle='Otra Calle', numero=456, 
-                                              id_accion=self.action.id_accion, rol_id=self.role.id_rol)
-        with self.assertRaises(ValueError) as context:
-            user_service.update_user(other_user.id_usuario, email=self.user_data['email'])
-        self.assertEqual(str(context.exception), "El email ya existe")
-
-    def test_update_user_with_existing_dni(self):
-        user_service.create_user(**self.user_data)
-        other_user = user_service.create_user(nombre='Otro Nombre', apellido='Otro Apellido', 
-                                              dni='87654321', email='otro.email@example.com', 
-                                              calle='Otra Calle', numero=456, 
-                                              id_accion=self.action.id_accion, rol_id=self.role.id_rol)
-        with self.assertRaises(ValueError) as context:
-            user_service.update_user(other_user.id_usuario, dni=self.user_data['dni'])
-        self.assertEqual(str(context.exception), "El DNI ya existe")
-
-    def test_delete_user(self):
-        user = user_service.create_user(**self.user_data)
-        user_service.delete_user(user.id_usuario)
-        self.assertIsNone(user_service.get_user_by_id(user.id_usuario))
+    def test_delete_login(self):
+        # Crear un login de prueba
+        login = self.login_service.create_login(
+            id_usuario=self.user.id_usuario,
+            username='fedex',
+            password='password123'
+        )
+        deleted_login = self.login_service.delete_login(login.id_login)
+        self.assertIsNotNone(deleted_login)
+        self.assertIsNone(self.login_service.get_login_by_id(login.id_login))
 
 if __name__ == '__main__':
     unittest.main()

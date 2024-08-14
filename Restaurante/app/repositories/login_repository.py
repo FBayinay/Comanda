@@ -1,11 +1,9 @@
 from app import db
-from app.models.login import Login
-from app.models.user import User  # Asegúrate de importar el modelo User
-
+from app.models import Login
+from app.models import User  
 class LoginRepository:
     @staticmethod
     def create_login(id_usuario, username, password_hash):
-        # Verificar si el id_usuario existe en la tabla User
         user = User.query.get(id_usuario)
         if not user:
             raise ValueError("El ID de usuario no existe en la tabla User")
@@ -27,7 +25,6 @@ class LoginRepository:
     def update_login(login_id, id_usuario=None, username=None, password_hash=None):
         login = Login.query.get(login_id)
         if login:
-            # Verificar si el nuevo id_usuario existe en la tabla User (si se actualiza)
             if id_usuario is not None:
                 user = User.query.get(id_usuario)
                 if not user:
