@@ -5,31 +5,31 @@ from app import db
 class ActionRepository:
     # Guardar un nueva acción en la base de datos
     def save(self, action: Action) -> Action:
-        db.session.add(action)  # Añadir el objeto action a la sesión de base de datos
-        db.session.commit()   # Confirmar (commit) la transacción para guardar los cambios
-        return action           # Retornar el objeto action guardado
+        db.session.add(action)  
+        db.session.commit()   
+        return action           
 
     # Actualizar una acción existente en la base de datos
     def update(self, action: Action, id: int) -> Optional[Action]:
-        entity = self.find(id)  # Buscar la acción existente por ID
+        entity = self.find(id)  
         if entity is None:
-            return None         # Si no se encuentra la acción, retornar None
-        entity.nombre = action.nombre  # Actualizar el nombre del la acción
-        db.session.commit()          # Confirmar los cambios
-        return entity                # Retornar la acción actualizado
+            return None         
+        entity.nombre = action.nombre  
+        db.session.commit()          
+        return entity                
 
     # Eliminar una acción de la base de datos
     def delete(self, id: int) -> None:
-        entity = self.find(id)  # Buscar la acción existente por ID
+        entity = self.find(id)  
         if entity:
-            db.session.delete(entity)  # Eliminar la acción de la sesión de base de datos
-            db.session.commit()        # Confirmar la transacción
+            db.session.delete(entity)  
+            db.session.commit()        
 
     # Obtener todos los actions de la base de datos
     def all(self) -> List[Action]:
-        return db.session.query(Action).all()  # Obtener y retornar todos los actions
+        return db.session.query(Action).all()  
 
     # Buscar una acción por ID
     def find(self, id: int) -> Optional[Action]:
         return db.session.query(Action).filter(Action.id_accion == id).one_or_none()  
-        # Buscar la acción por ID y retornar una o ninguna (si no se encuentra)
+        

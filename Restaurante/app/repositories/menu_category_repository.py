@@ -5,32 +5,32 @@ from app import db
 class MenuCategoryRepository:
     # Guardar una nueva categoría de menú en la base de datos
     def save(self, category: MenuCategory) -> MenuCategory:
-        db.session.add(category)  # Añadir el objeto MenuCategory a la sesión de base de datos
-        db.session.commit()       # Confirmar (commit) la transacción para guardar los cambios
-        return category           # Retornar el objeto MenuCategory guardado
+        db.session.add(category)  
+        db.session.commit()       
+        return category           
 
     # Actualizar una categoría de menú existente en la base de datos
     def update(self, category: MenuCategory, id: int) -> Optional[MenuCategory]:
-        entity = self.find(id)  # Buscar la categoría existente por ID
+        entity = self.find(id)  
         if entity is None:
-            return None         # Si no se encuentra la categoría, retornar None
-        entity.categoria = category.categoria  # Actualizar la categoría
+            return None         
+        entity.categoria = category.categoria  
         entity.descripcion = category.descripcion
-        db.session.commit()   # Confirmar los cambios
-        return entity         # Retornar la categoría actualizada
+        db.session.commit()   
+        return entity         
 
     # Eliminar una categoría de menú de la base de datos
     def delete(self, id: int) -> None:
-        entity = self.find(id)  # Buscar la categoría existente por ID
+        entity = self.find(id)  
         if entity:
-            db.session.delete(entity)  # Eliminar la categoría de la sesión de base de datos
-            db.session.commit()        # Confirmar la transacción
+            db.session.delete(entity)  
+            db.session.commit()        
 
     # Obtener todas las categorías de menú de la base de datos
     def all(self) -> List[MenuCategory]:
-        return db.session.query(MenuCategory).all()  # Obtener y retornar todas las categorías de menú
+        return db.session.query(MenuCategory).all()  
 
     # Buscar una categoría de menú por ID
     def find(self, id: int) -> Optional[MenuCategory]:
         return db.session.query(MenuCategory).filter(MenuCategory.id_categoria == id).one_or_none()  
-        # Buscar la categoría por ID y retornar uno o ninguno (si no se encuentra)
+        
