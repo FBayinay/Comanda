@@ -37,11 +37,8 @@ def create_user():
 
 # Obtener todos los usuarios (Read)
 @user_routes.route('/usuarios', methods=['GET'])
-def get_users():
-    response_builder = ResponseBuilder()
-    users = user_service.get_all_users()
-    response_builder.add_message("Usuarios recuperados").add_status_code(100).add_data([user_schema.dump(user) for user in users])
-    return response_schema.dump(response_builder.build()), 200
+def index():
+    return {"users": user_schema.dump(user_service.get_all_users(), many=True)}, 200
 
 # Obtener un usuario por ID (Read)
 @user_routes.route('/usuarios/<int:id>', methods=['GET'])
